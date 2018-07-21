@@ -9,29 +9,10 @@
 </head>
 
 <body>
+  <div style="height: 100px;width: 100px;"></div>
+  <script src="../node_modules/jquery/dist/jquery.js"></script>
   <script src="../dist/eagle.umd.js"></script>
-  <script>
-    class Index extends Eagle {
-      constructor(rootElement) {
-        super(rootElement);
-
-        this.events = {
-          'click body': 'testHandler'
-        }
-
-        this.eventHandlers = {
-          testHandler(e, $el) {
-
-          }
-        }
-
-      }
-
-
-    }
-
-    new Index();
-  </script>
+  <script src="index.umd.js"></script>
 </body>
 
 </html>
