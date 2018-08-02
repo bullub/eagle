@@ -1,4 +1,8 @@
+'use strict';
+
 module.exports = {
+  // 继承eslint推荐的默认规则
+  // "extends": "eslint:recommended",
   // 环境定义了预定义的全局变量。更多在官网查看
   "env": {
     "browser": true,
@@ -9,8 +13,12 @@ module.exports = {
   // JavaScript 语言选项
   "parserOptions": {
     // ECMAScript 版本
-    "ecmaVersion": 6,
-    "sourceType": "script"// module
+    "ecmaVersion": 7,
+    "sourceType": "module", // module
+    "ecmaFeatures": {
+      // 打开一些实验性的功能的校验
+      "experimentalObjectRestSpread": true
+    }
   },
   /**
    * "off" 或 0 - 关闭规则
@@ -18,9 +26,13 @@ module.exports = {
    * "error" 或 2 - 开启规则，使用错误级别的错误：error (当被触发的时候，程序会退出)
    */
   "rules": {
-    // //////////////
-    // 可能的错误 //
-    // //////////////
+    // 强制 getter 函数中出现 return 语句
+    "getter-return": 2,
+    // 禁止在正则表达式中使用控制字符
+    "no-control-regex": 2,
+    // 强制尽可能地使用点号
+    "dot-notation": 2,
+    // 允许写console语句
     "no-console": 0,
     // 禁止条件表达式中出现赋值操作符
     "no-cond-assign": 2,
@@ -49,16 +61,38 @@ module.exports = {
     // 禁止在 in 表达式中出现否定的左操作数
     "no-negated-in-lhs": 2,
     // !!!!!!!!!!!禁止出现令人困惑的多行表达式
-    "no-unexpected-multiline": 1,
+    "no-unexpected-multiline": 2,
     // 禁止在return、throw、continue 和 break语句之后出现不可达代码
-    "no-unreachable": 1,
+    "no-unreachable": 2,
     // 要求使用 isNaN() 检查 NaN
     "use-isnan": 2,
     // 强制使用有效的 JSDoc 注释
-    "valid-jsdoc": [1, { "requireReturn": false }],
+    "valid-jsdoc": [1, { "requireReturn": true }],
     // 强制 typeof 表达式与有效的字符串进行比较
     // typeof foo === "undefimed" 错误
     "valid-typeof": 2,
+    // 禁止对关系运算符的左操作数使用否定操作符
+    "no-unsafe-negation": 2,
+    // 禁止在 finally 语句块中出现控制流语句
+    "no-unsafe-finally": 2,
+    // 禁用稀疏数组
+    "no-sparse-arrays": 1,
+    // 禁止正则表达式字面量中出现多个空格
+    "no-regex-spaces": 2,
+    // 禁止把全局对象作为函数调用
+    "no-obj-calls": 2,
+    // 禁止在字符串和注释之外不规则的空白
+    "no-irregular-whitespace": 2,
+    // 强制在parseInt()使用基数参数
+    "radix": 2,
+    // 禁止使用不带 await 表达式的 async 函数
+    "require-await": 2,
+    // 要求或禁止 “Yoda” 条件
+    "yoda": 1,
+    // 禁止使用with语句
+    "no-with": 2,
+    // 禁止多余的 return 语句
+    "no-useless-return": 1,
 
     // ////////////
     // 最佳实践 //
@@ -70,8 +104,12 @@ module.exports = {
     "curly": [2, "all"],
     // switch 语句强制 default 分支，也可添加 // no default 注释取消此次警告
     "default-case": 1,
-    // 使用 === 替代 == allow-null允许null和undefined==
-    "eqeqeq": [1, "allow-null"],
+    // 禁止扩展原生对象，扩展原生对象会降低V8性能
+    "no-extend-native": 2,
+    // 不允许使用eval
+    "no-eval": 2,
+    // 使用 ===
+    "eqeqeq": 1,
     // 不允许在 case 子句中使用词法声明
     "no-case-declarations": 2,
     // 禁止除法操作符显式的出现在正则表达式开始的位置
@@ -87,11 +125,11 @@ module.exports = {
     // 禁用不必要的嵌套块
     "no-lone-blocks": 1,
     // 禁止在循环中出现 function 声明和表达式
-    "no-loop-func": 1,
+    "no-loop-func": 2,
     // 禁止对原生对象赋值
     "no-native-reassign": 2,
     // 禁止在非赋值或条件语句中使用 new 操作符
-    "no-new": 1,
+    "no-new": 0,
     // 不允许对 function 的参数进行重新赋值
     "no-param-reassign": [1, { "props": true }],
     // 禁止使用 var 多次声明同一变量
@@ -112,11 +150,64 @@ module.exports = {
     "vars-on-top": 1,
     // 要求 IIFE 使用括号括起来
     "wrap-iife": [2, "any"],
+    // 禁止不必要的转义字符
+    "no-useless-escape": 2,
+    // 禁止出现未使用过的标签
+    "no-unused-labels": 2,
+    // 禁止自我赋值
+    "no-self-assign": 2,
+    // 禁止8禁止字面量，避免parseInt错误
+    "no-octal": 2,
+    // 禁止对原生对象或只读的全局对象进行赋值
+    "no-global-assign": 2,
+    // 禁止 case 语句落空
+    "no-fallthrough": 2,
+    // 禁止用空解构模式
+    "no-empty-pattern": 2,
+    // 不允许case子句中使用词法声明
+    "no-case-declarations": 2,
+    // 禁止抛出异常字面量
+    "no-throw-literal": 1,
+    // 禁用逗号操作符
+    "no-sequences": 1,
+    // 禁止使用 javascript: url
+    "no-script-url": 2,
+    // 禁用不必要的 return await
+    "no-return-await": 2,
+    // 禁止在 return 语句中使用赋值语句
+    "no-return-assign": 2,
+    // 禁用魔术数字
+    "no-magic-numbers": 0,
+    // 强制数组方括号中使用一致的空格
+    "array-bracket-spacing": 1,
+    // 强制使用骆驼拼写法命名约定
+    "camelcase": 1,
+    // 强制使用一致的逗号风格
+    "comma-style": 1,
+    // 函数名和对应的变量名相同
+    "func-name-matching": 1,
+    // 禁止空格和 tab 的混合缩进
+    "no-mixed-spaces-and-tabs": 1,
+    // 禁用嵌套的三元表达式
+    "no-nested-ternary": 2,
+    // 禁用 Object 的构造函数
+    "no-new-object": 1,
+    "indent": [1, 2, { "SwitchCase": 1 }],
+
+    "no-restricted-properties": [2, {
+      "property": "__defineGetter__",
+      "message": "Please use Object.defineProperty instead."
+    }],
+
+    // 禁止类似eval的方法
+    "no-implied-eval": 2,
+
 
     // ////////////
     // 变量声明 //
     // ////////////
-
+    // 禁止 catch 子句的参数与外层作用域中的变量同名
+    "no-catch-shadow": 1,
     // 禁止删除变量
     "no-delete-var": 2,
     // 禁止 var 声明 与外层作用域的变量同名
@@ -126,12 +217,12 @@ module.exports = {
     // 禁用未声明的变量，除非它们在 /*global */ 注释中被提到
     "no-undef": 2,
     // 禁止将变量初始化为 undefined
-    "no-undef-init": 1,
+    "no-undef-init": 2,
     // 禁止将 undefined 作为标识符
-    "no-undefined": 1,
+    "no-undefined": 2,
     // 禁止出现未使用过的变量
     "no-unused-vars": [1, { "vars": "all", "args": "none" }],
     // 不允许在变量定义之前使用它们
-    "no-use-before-define": 2,
+    "no-use-before-define": 0,
   }
 }
