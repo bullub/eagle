@@ -231,7 +231,7 @@ Eagle.addResponseFilter = function (filter) {
  */
 Eagle.getURL = function getURL(serviceName, apiName, options) {
 
-  if (!global.CONFIG || !CONFIG.SERVICES || !CONFIG.SERVICES[serviceName]) {
+  if (!window.CONFIG || !CONFIG.SERVICES || !CONFIG.SERVICES[serviceName]) {
     throw new Error('The serviceName [' + serviceName + '] not defined in your config, please check your config!');
   }
 
