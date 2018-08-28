@@ -11,6 +11,13 @@ Eagle.addRequestFilter(async function(option) {
     resolve('1000');
   });
 });
+Eagle.addRequestFilter(function (option) {
+  if (!option.options.headers) {
+    option.options.headers = {};
+  }
+  option.options.headers['Custom1'] = '10000';
+});
+
 
 const Index = Eagle.extend({
   constructor: function Index() {
