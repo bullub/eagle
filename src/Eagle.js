@@ -222,6 +222,10 @@ Eagle.addResponseFilter = function (filter) {
   responseFilterChain.push(filter);
 };
 
+Eagle.setServices = function setServices(services) {
+  Eagle.SERVICES = services;
+}
+
 /**
  * 根据服务名和api名，以及运行时参数，获取请求的URL地址
  * @param {String} serviceName  服务名
@@ -231,12 +235,12 @@ Eagle.addResponseFilter = function (filter) {
  */
 Eagle.getURL = function getURL(serviceName, apiName, options) {
 
-  if (!window.CONFIG || !CONFIG.SERVICES || !CONFIG.SERVICES[serviceName]) {
+  if (!Eagle.SERVICES || !Eagle.SERVICES[serviceName]) {
     throw new Error('The serviceName [' + serviceName + '] not defined in your config, please check your config!');
   }
 
 
-  let url = CONFIG.SERVICES[serviceName].API[apiName];
+  let url = Eagle.SERVICES[serviceName].API[apiName];
 
   if (!url) {
     throw new Error('The apiName not defined in your service [' + serviceName + '], please check your config.');
@@ -257,7 +261,7 @@ Eagle.getURL = function getURL(serviceName, apiName, options) {
     url += queries;
   }
 
-  return CONFIG.SERVICES[serviceName].BASE_URL + url;
+  return Eagle.SERVICES[serviceName].BASE_URL + url;
 
 };
 
