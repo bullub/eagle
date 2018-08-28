@@ -1,6 +1,16 @@
+
 Eagle.getURL = function(){
   return 'http://127.0.0.1:5500/demo/index.html';
 };
+
+Eagle.addRequestFilter(async function(option) {
+  if (!option.options.headers) {
+    option.options.headers = {};
+  }
+  option.options.headers['Custom'] = await new Promise((resolve, reject) => {
+    resolve('1000');
+  });
+});
 
 const Index = Eagle.extend({
   constructor: function Index() {
