@@ -1,5 +1,5 @@
 Eagle.getURL = function(){
-  return 'https://www.baidu.com';
+  return 'http://127.0.0.1:5500/demo/index.html';
 };
 
 const Index = Eagle.extend({

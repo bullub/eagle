@@ -36,6 +36,68 @@ var asyncToGenerator = function (fn) {
   };
 };
 
+/**
+ * 应用过滤器链
+ * @param filterChain {Array<Function>} 过滤器链
+ * @param options {Object} 传入到过滤器中的参数
+ * @returns {boolean}
+ *          false 中断当前过程(如果的请求，则中断当前请求，如果是响应，则不调用回调)
+ */
+var applyFilterChain = function () {
+  var _ref = asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(filterChain, options) {
+    var execResult, i, len;
+    return _regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            execResult = void 0;
+            i = 0, len = filterChain.length;
+
+          case 2:
+            if (!(i < len)) {
+              _context.next = 13;
+              break;
+            }
+
+            _context.next = 5;
+            return filterChain[i].call(this, options);
+
+          case 5:
+            execResult = _context.sent;
+
+            if (!(false === execResult)) {
+              _context.next = 8;
+              break;
+            }
+
+            return _context.abrupt('return', false);
+
+          case 8:
+            if (!(true === execResult)) {
+              _context.next = 10;
+              break;
+            }
+
+            return _context.abrupt('break', 13);
+
+          case 10:
+            i++;
+            _context.next = 2;
+            break;
+
+          case 13:
+          case 'end':
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+
+  return function applyFilterChain(_x2, _x3) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
 var slice = Array.prototype.slice;
 
 //私有方法，绑定页面上，当前Eagle管辖区域中，有ID的元素到当前的Eagle实例
@@ -292,142 +354,161 @@ Eagle.getURL = function getURL(serviceName, apiName, options) {
   }
 
   return CONFIG.SERVICES[serviceName].BASE_URL + url;
-};
-
-/**
- * 应用过滤器链
- * @param filterChain {Array<Function>} 过滤器链
- * @param options {Object} 传入到过滤器中的参数
- * @returns {boolean}
- *          false 中断当前过程(如果的请求，则中断当前请求，如果是响应，则不调用回调)
- */
-function applyFilterChain(filterChain, options) {
-  var execResult = void 0;
-  for (var i = 0, len = filterChain.length; i < len; i++) {
-    execResult = filterChain[i].call(this, options);
-    //中断过程，并返回
-    if (false === execResult) {
-      return false;
-    }
-    //中断继续执行过滤器链
-    if (true === execResult) {
-      break;
-    }
-  }
-}
-
-/**
- * 发送请求
- * @param serviceName {String} 服务名，用于在配置中，将后台服务配置模块化，方便接口管理
- * @param apiName {String} 接口名，全局唯一，该字段对应的URL从window.CONFIG.SERVICES中获取，因此使用该框架，在全局必然会又一个CONFIG对象，否则会报错
- * @param options {Object} 请求参数，格式如下
- *      {
- *          type: {String} 请求发送的http方法，可选值 GET,POST,PUT,DELETE,OPTIONS,HEAD,TRACE等
- *          headers: {Object} http头信息
- *          params: {Object} 路径变量，填充apiName对应的url中存在的路径变量
- *          query: {Object} 对应请求路径的query string,也就是路径问好后需要带上的参数，自动序列化并加到路径后面
- *          body: {Object} 对应的http请求体，body根据请求发送时的Content-Type进行序列化，具体序列化方式，参考HTTP标准
- *          timeout: {Number} 请求超时毫秒数
- *          handler: {String} 请求完成后的回调，字符串代表Eagle实例中的requestHandlers中函数的key
- *            回调参数列表:
- *            respBody: {Object|String} 根据响应头中的Content-Type对响应体进行解析，模式尝试使用json方式
- *            status: {Number} http响应状态码，0表示请求未发送成功，往往表示客户端网络未连接
- *            headers: {Object} 所有能成功获取的响应头(某些跨域情况下，以及某些头是不能直接获取的)
- *      }
- */
-Eagle.prototype.request = function () {
-  var _ref = asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(serviceName, apiName, options) {
+};Eagle.prototype.request = function () {
+  var _ref2 = asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee4(serviceName, apiName, options) {
     var _this = this;
 
-    return _regeneratorRuntime.wrap(function _callee$(_context) {
+    return _regeneratorRuntime.wrap(function _callee4$(_context4) {
       while (1) {
-        switch (_context.prev = _context.next) {
+        switch (_context4.prev = _context4.next) {
           case 0:
-            return _context.abrupt('return', new Promise(function (resolve, reject) {
-              var self = _this;
-              var _body = null;
-              if (options.body instanceof FormData) {
-                _body = options.body;
-                options.processData = false;
-                options.contentType = false;
-              }
+            return _context4.abrupt('return', new Promise(function () {
+              var _ref3 = asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3(resolve, reject) {
 
-              //深拷贝一下参数
-              options = JSON.parse(JSON.stringify(options));
+                //预处理
+                var handlerResp = function () {
+                  var _ref4 = asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2(xhr) {
+                    var filterOption;
+                    return _regeneratorRuntime.wrap(function _callee2$(_context2) {
+                      while (1) {
+                        switch (_context2.prev = _context2.next) {
+                          case 0:
+                            filterOption = {
+                              serviceName: serviceName,
+                              apiName: apiName,
+                              options: options,
+                              xhr: xhr,
+                              response: getResponse(xhr),
+                              status: getStatus(xhr),
+                              headers: getHeaders(xhr)
+                            };
 
-              if (_body !== null) {
-                options.body = _body;
-              }
+                            //如果过滤器链返回了false, 那么直接返回空响应
 
-              //根据服务名，接口名获取当前发送请求的地址
-              options.url = Eagle.getURL(serviceName, apiName, options);
+                            _context2.next = 3;
+                            return applyFilterChain.call(self, responseFilterChain, filterOption);
 
-              //首先应用请求发送前的过滤器链，如果过滤器链执行过程中返回了false，则该请求被中断，不再发送
-              if (false === applyFilterChain.call(self, requestFilterChain, {
-                serviceName: serviceName,
-                apiName: apiName,
-                options: options
-              })) {
-                console.warn('请求在请求过滤器链中被中断, 请处理您的代码！');
-                resolve(null);
-                return;
-              }
+                          case 3:
+                            _context2.t0 = _context2.sent;
 
-              if (options.body instanceof FormData) {
-                delete (options.headers || {})['Content-Type'];
-              }
+                            if (!(false === _context2.t0)) {
+                              _context2.next = 8;
+                              break;
+                            }
 
-              //预处理
-              function handlerResp(xhr) {
-                var filterOption = {
-                  serviceName: serviceName,
-                  apiName: apiName,
-                  options: options,
-                  xhr: xhr,
-                  response: getResponse(xhr),
-                  status: getStatus(xhr),
-                  headers: getHeaders(xhr)
-                };
+                            console.warn('响应过滤器链拦截了您的相应！');
+                            resolve(null);
+                            return _context2.abrupt('return');
 
-                //如果过滤器链返回了false, 那么直接返回空响应
-                if (false === applyFilterChain.call(self, responseFilterChain, filterOption)) {
-                  console.warn('响应过滤器链拦截了您的相应！');
-                  resolve(null);
-                  return;
-                }
+                          case 8:
 
-                // 响应请求
-                resolve({
-                  data: filterOption.response,
-                  status: filterOption.status,
-                  headers: filterOption.headers,
-                  request: filterOption.options
-                });
-              }
+                            // 响应请求
+                            resolve({
+                              data: filterOption.response,
+                              status: filterOption.status,
+                              headers: filterOption.headers,
+                              request: filterOption.options
+                            });
 
-              options.success = function (resp, status, xhr) {
-                handlerResp(xhr);
+                          case 9:
+                          case 'end':
+                            return _context2.stop();
+                        }
+                      }
+                    }, _callee2, this);
+                  }));
+
+                  return function handlerResp(_x9) {
+                    return _ref4.apply(this, arguments);
+                  };
+                }();
+
+                var self, _body;
+
+                return _regeneratorRuntime.wrap(function _callee3$(_context3) {
+                  while (1) {
+                    switch (_context3.prev = _context3.next) {
+                      case 0:
+                        self = _this;
+                        _body = null;
+
+                        if (options.body instanceof FormData) {
+                          _body = options.body;
+                          options.processData = false;
+                          options.contentType = false;
+                        }
+
+                        //深拷贝一下参数
+                        options = JSON.parse(JSON.stringify(options));
+
+                        if (_body !== null) {
+                          options.body = _body;
+                        }
+
+                        //根据服务名，接口名获取当前发送请求的地址
+                        options.url = Eagle.getURL(serviceName, apiName, options);
+
+                        //首先应用请求发送前的过滤器链，如果过滤器链执行过程中返回了false，则该请求被中断，不再发送
+                        _context3.next = 8;
+                        return applyFilterChain.call(self, requestFilterChain, {
+                          serviceName: serviceName,
+                          apiName: apiName,
+                          options: options
+                        });
+
+                      case 8:
+                        _context3.t0 = _context3.sent;
+
+                        if (!(false === _context3.t0)) {
+                          _context3.next = 13;
+                          break;
+                        }
+
+                        console.warn('请求在请求过滤器链中被中断, 请处理您的代码！');
+                        resolve(null);
+                        return _context3.abrupt('return');
+
+                      case 13:
+
+                        if (options.body instanceof FormData) {
+                          delete (options.headers || {})['Content-Type'];
+                        }
+
+                        options.success = function (resp, status, xhr) {
+                          handlerResp(xhr);
+                        };
+
+                        options.error = function (xhr, error) {
+                          handlerResp(xhr);
+                        };
+
+                        options.data = options.body;
+
+                        $.ajax(options);
+
+                      case 18:
+                      case 'end':
+                        return _context3.stop();
+                    }
+                  }
+                }, _callee3, _this);
+              }));
+
+              return function (_x7, _x8) {
+                return _ref3.apply(this, arguments);
               };
-
-              options.error = function (xhr, error) {
-                handlerResp(xhr);
-              };
-
-              options.data = options.body;
-
-              $.ajax(options);
-            }));
+            }()));
 
           case 1:
           case 'end':
-            return _context.stop();
+            return _context4.stop();
         }
       }
-    }, _callee, this);
+    }, _callee4, this);
   }));
 
-  function request(_x2, _x3, _x4) {
-    return _ref.apply(this, arguments);
+  function request(_x4, _x5, _x6) {
+    return _ref2.apply(this, arguments);
   }
 
   return request;

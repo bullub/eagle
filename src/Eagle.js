@@ -268,10 +268,10 @@ Eagle.getURL = function getURL(serviceName, apiName, options) {
  * @returns {boolean}
  *          false 中断当前过程(如果的请求，则中断当前请求，如果是响应，则不调用回调)
  */
-function applyFilterChain(filterChain, options) {
+async function applyFilterChain(filterChain, options) {
   let execResult;
   for (let i = 0, len = filterChain.length; i < len; i++) {
-    execResult = filterChain[i].call(this, options);
+    execResult = await filterChain[i].call(this, options);
     //中断过程，并返回
     if (false === execResult) {
       return false;
@@ -303,7 +303,7 @@ function applyFilterChain(filterChain, options) {
  *      }
  */
 Eagle.prototype.request = async function request(serviceName, apiName, options) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     let self = this;
     let _body = null;
     if (options.body instanceof FormData) {
@@ -323,7 +323,7 @@ Eagle.prototype.request = async function request(serviceName, apiName, options) 
     options.url = Eagle.getURL(serviceName, apiName, options);
 
     //首先应用请求发送前的过滤器链，如果过滤器链执行过程中返回了false，则该请求被中断，不再发送
-    if (false === applyFilterChain.call(self, requestFilterChain, {
+    if (false === await applyFilterChain.call(self, requestFilterChain, {
       serviceName: serviceName,
       apiName: apiName,
       options: options,
@@ -338,7 +338,7 @@ Eagle.prototype.request = async function request(serviceName, apiName, options) 
     }
 
     //预处理
-    function handlerResp(xhr) {
+    async function handlerResp(xhr) {
       let filterOption = {
         serviceName: serviceName,
         apiName: apiName,
@@ -350,7 +350,7 @@ Eagle.prototype.request = async function request(serviceName, apiName, options) 
       };
 
       //如果过滤器链返回了false, 那么直接返回空响应
-      if (false === applyFilterChain.call(self, responseFilterChain, filterOption)) {
+      if (false === await applyFilterChain.call(self, responseFilterChain, filterOption)) {
         console.warn('响应过滤器链拦截了您的相应！');
         resolve(null);
         return;
